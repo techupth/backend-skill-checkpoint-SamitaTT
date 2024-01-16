@@ -90,17 +90,23 @@ questionRouter.delete("/:questionId", async function (req, res) {
 
 questionRouter.post("/:questionId", async function (req, res) {
   try {
-    const collection = db.collection("questions");
-    const questionId = new ObjectId(req.params.questionId);
-    const answerData = { ...req.body, created_at: new Date() };
+    const newComment = req.body.comment;
+    if (newComment.length > 300) {
+      res.json({
+        message: " comment length should not exceed 300 characters",
+      });
+    } else {
+      const collection = db.collection("questions");
+      const questionId = new ObjectId(req.params.questionId);
 
-    const answer = await collection.updateOne(
-      { _id: questionId },
-      { $push: { comments: { answerData } } }
-    );
-    return res.json({
-      message: "Answer has been created successfully",
-    });
+      const comment = await collection.updateOne(
+        { _id: questionId },
+        { $push: { comments: { ...req.body, created_at: new Date() } } }
+      );
+      return res.json({
+        message: "Answer has been created successfully",
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       message: "Internal Server Error",
