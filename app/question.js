@@ -88,4 +88,24 @@ questionRouter.delete("/:questionId", async function (req, res) {
   }
 });
 
+questionRouter.post("/:questionId", async function (req, res) {
+  try {
+    const collection = db.collection("questions");
+    const questionId = new ObjectId(req.params.questionId);
+    const answerData = { ...req.body, created_at: new Date() };
+
+    const answer = await collection.updateOne(
+      { _id: questionId },
+      { $push: { comments: { answerData } } }
+    );
+    return res.json({
+      message: "Answer has been created successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+});
+
 export default questionRouter;
