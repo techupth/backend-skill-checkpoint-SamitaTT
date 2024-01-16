@@ -6,8 +6,18 @@ const questionRouter = Router();
 
 questionRouter.get("/", async function (req, res) {
   try {
+    const title = req.query.keyword;
+    const categories = req.query.categories;
+    const query = {};
+    if (title) {
+      query.title = new RegExp(title, "i");
+    }
+    if (categories) {
+      query.categories = new RegExp(categories, "i");
+    }
+
     const collection = db.collection("questions");
-    const questions = await collection.find().toArray();
+    const questions = await collection.find(query).limit(10).toArray();
 
     return res.json({ data: questions });
   } catch (error) {
